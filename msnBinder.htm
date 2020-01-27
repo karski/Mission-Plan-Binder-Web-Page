@@ -1,0 +1,980 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style-Flex.css">
+</head>
+<body onresize="drawContingencyLinks()">
+    <canvas id="linkDrawSpace"></canvas>
+    <div class="pageHead">
+        <ul class="routeList">
+            <li>
+                <h2 style="text-align: center">Route List</h2>
+                <ul>
+                    <li class="c0 alternateRows">
+                        <h2>C0: Approach</h2>
+                        <ul id="c0List" class="c0"></ul>
+                    </li>
+                    <li class="c1 alternateRows">
+                        <h2>C1: Lost Link</h2>
+                        <ul id="c1List" class="c1"></ul>
+                    </li>
+                    <li class="c2 alternateRows">
+                        <h2>C2: RTB</h2>
+                        <ul id="c2List" class="c2"> </ul>
+                    </li>
+                    <li class="c3 alternateRows">
+                        <h2>C3: Emergency</h2>
+                        <ul id="c3List" class="c3"></ul>
+                    </li>
+                    <li class="c4 alternateRows">
+                        <h2>C4: Go-Around</h2>
+                        <ul id="c4List" class="c4"></ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div>
+            <h1 id="pageMsnHeader"></h1>
+            
+        </div>
+        <div class="selectOptions">
+            <select id="selectDropdown" onchange="selectMsnPlan()">
+                <option selected disabled hidden>Choose Msn Plan</option>
+            </select>
+            <p>
+                Or
+                <input id="selectFile" accept=".msnPlan" type="file" />
+                <button id="btnOpenMsnPlan">Upload Plan File</button>
+            </p>
+        </div>
+
+        <span class="pageLinks">
+            <a id="linkBinder" target="_blank" href=""><h3>Electronic Mission Binder</h3></a>
+            <a id="linkAnalysis" class="tooltip" href="">
+                <h3>Calculations Disclaimer</h3>
+                <div>
+                    <h2>Calculations Disclaimer</h2>
+                    <b><i>Tables in this page can contain calculations that are not verified and may contain errors.</i></b><br />
+                    Calculations are described in the table header descriptions.<br />
+                    Inputs for calculations are marked in <b>bold</b> text and may be cleared by entering blank input.<br /><br />
+                    Unaltered Routes (no <b>bold</b> values) displayed in the Active Route (top/left table)<br />
+                    contain values directly derived from the original Mission Binder and does not have any calculations.<br />
+                    Unaltered Routes can be accessed by selecting from the Route List menu. <br />
+                    The primary route from a new mission plan load is also unaltered.<br /><br />
+                    <h2>Calculation Dependencies</h2>
+                    <pre>
+[WIND INPUT] --> GS --> LEG TIME --> ETA --> Contingency ETA
+                                 --> TTG
+                                 --> LEG FUEL --> FUEL --> Contingency FUEL
+
+[TAS INPUT]  --> GS --> LEG TIME --> ETA --> Contingency ETA
+                                 --> TTG
+                                 --> LEG FUEL --> FUEL --> Contingency FUEL
+
+[ETA INPUT]  --> ETA --> Contingency ETA
+
+[PPH INPUT]  --> LEG FUEL --> FUEL --> Contingency FUEL
+
+[FUEL INPUT] --> FUEL --> Contingency FUEL
+</pre>
+                </div>
+            </a>
+        </span>
+    </div>
+
+    <div class="pageContainer" onscroll="drawContingencyLinks()">
+
+        <div id="mainContainer" class="c0 main normal">
+            <div class="routeHeader">
+                <h1 id="mainHeader"></h1>
+                <div class="routeOptionsContainer"><input type="checkbox" name="updateActive" id="inputUpdateActive" onclick="autoUpdateWaypointClick()"><label for="updateActive">Automatically Update Current WPT using ETA (ZULU)</label></div>
+                <div class="containerControls" onclick="drawContingencyLinks()">
+                    <div onclick="document.getElementById('mainContainer').className = document.getElementById('mainContainer').className.replace('normal','collapsed').replace('expanded','normal')" class="arrowUp"></div>
+                    <div onclick="document.getElementById('mainContainer').className = document.getElementById('mainContainer').className.replace('normal','expanded').replace('collapsed','normal')" class="arrowDown"></div>
+                </div>
+            </div>
+            <div class="routeContainer">
+                <div class="routeTableHeader">
+                    <table>
+                        <tr>
+                            <th class="colArrow"></th>
+                            <th class="colDTD">
+                                <a class="ap">
+                                    DTD
+                                    <div>
+                                        <h2>DTD</h2>
+                                        Waypoint ID<br /> <span style="border-bottom: 1px dotted black">Underline</span> indicates Action Points at Waypoint<br />Hover for AP detail<br /><br />
+                                        User input accepted to change:<br />WIND, TAS, ETA, PPH, FUEL
+                                    </div>
+                                </a>
+                                <p>REMARKS</p>
+                            </th>
+                            <th class="colLL">
+                                <p>FIX</p>
+                                <p>LATITUDE</p>
+                                <p>LONGITUDE</p>
+                            </th>
+                            <th class="colAlt">
+                                <p>ALT</p>
+                                <p>EXP ALT</p>
+                                <a class="ap" onclick="toggleCourse()">
+                                    COURSE
+                                    <div>
+                                        <h2>Course</h2>
+                                        Course to reach waypoint from previous waypoint<br />
+                                        (Click COURSE column header to toggle True/Magnetic)
+                                    </div>
+                                </a>
+                            </th>
+                            <th class="colDist">
+                                <a class="tooltip">
+                                    WIND
+                                    <div>
+                                        <h2>Wind</h2>
+                                        [User Input - multiple]<br />
+                                        <i>
+                                            WIND input is forwarded to <br />
+                                            next manually entered value
+                                        </i><br /><br />
+                                        Wind at waypoint<br />
+                                        Used with TAS to determine ground speed <br />
+                                        for calculating LEG TIME<br /><br />
+                                        Accepted Formats:<br />
+                                        heading/velocity or HHHVV
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    LEG DIST
+                                    <div>
+                                        <h2>Leg Distance</h2>
+                                        Distance along route to waypoint
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    AC DIST
+                                    <div>
+                                        <h2>Route Distance</h2>
+                                        Distance travelled along route from<br /> first route waypoint to current waypoint
+                                    </div>
+                                </a>
+                            </th>
+                            <th class="colSpeed">
+                                <a class="tooltip">
+                                    TAS
+                                    <div>
+                                        <h2>True Air Speed</h2>
+                                        [User Input - multiple]<br />
+                                        <i>TAS input is forwarded across same values</i><br /><br />
+                                        True air speed at waypoint<br />
+                                        Used with WIND to determine ground speed<br />
+                                        for calculating LEG TIME
+                                    </div>
+                                </a>
+                                <p>CAS[M]</p>
+                                <a class="tooltip">
+                                    GS
+                                    <div>
+                                        <h2>Ground Speed</h2>
+                                        Speed travelling over the ground with winds factored in<br />
+                                        Calculated from TAS and WIND
+                                    </div>
+                                </a>
+                            </th>
+                            <th class="colTime">
+                                <a class="tooltip">
+                                    ETA
+                                    <div>
+                                        <h2>Estimated Time of Arrival</h2>
+                                        [User Input - one entry per route]<br />
+                                        <i>
+                                            No user input: route defaults used<br />
+                                            Contingencies without user input:<br />
+                                            Tied to linked waypoint ETA (no enroute time added)
+                                        </i><br /><br />
+                                        Time arriving at waypoint<br />
+                                        Calculated using last waypoint ETA and LEG TIME
+                                        <br /><br />
+                                        Accepted Formats:<br />
+                                        HHmm H:mm HH:mm:ss<br />
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    LEG TIME
+                                    <div>
+                                        <h2>Leg Time</h2>
+                                        Time enroute to waypoint<br />
+                                        Calculated using waypoint TAS and WIND
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    TTG
+                                    <div>
+                                        <h2>Time To Go To Destination</h2>
+                                        Time until landing<br />
+                                        Calculated using LEG TIME
+                                    </div>
+                                </a>
+                            </th>
+                            <th class="colFuel">
+                                <a class="tooltip">
+                                    PPH
+                                    <div>
+                                        <h2>Fuel Burn Rate (PPH)</h2>
+                                        [User Input - multiple]<br />
+                                        <i>PPH input is forwarded across same values</i><br /><br />
+                                        <i>No user input: Calculated from fuel difference and leg time</i><br /><br />
+                                        Fuel burned per hour along route leg
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    LEG FUEL
+                                    <div>
+                                        <h2>Leg Fuel (lbs)</h2>Fuel burned enroute to next waypoint<br />
+                                        Calculated using LEG TIME, PPH, and last waypoint FUEL
+                                    </div>
+                                </a><br />
+                                <a class="tooltip">
+                                    FUEL
+                                    <div>
+                                        <h2>Fuel Remaining at Waypoint (lbs)</h2>
+                                        [User Input - one entry per route]<br />
+                                        <i>
+                                            No user input: route defaults used<br />
+                                            Contingencies without user input:<br />
+                                            Tied to linked waypoint FUEL (no enroute fuel added)
+                                        </i><br /><br />
+                                        Fuel arriving at waypoint<br />
+                                        Calculated using last waypoint FUEL and LEG FUEL
+                                    </div>
+                                </a>
+                            </th>
+                            <th class="colContingency">
+                                CONTINGENCIES<br />
+                                C1/2/3/4
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+                <div id="mainRouteTable" class="routeTableContainer" onscroll="drawContingencyLinks()">
+
+                </div>
+            </div>
+        </div>
+        <div class="contingencyContainer">
+            <div id="c1Container" class="contingency c1 normal">
+                <div class="routeHeader">
+                    <h1 id="c1Header"></h1>
+                    <div class="containerControls" onclick="drawContingencyLinks()">
+                        <div onclick="moveMain(1)" class="moveLabel"><div class="arrowLeft"></div>MOVE TO ACTIVE</div>
+                        <div onclick="document.getElementById('c1Container').className = document.getElementById('c1Container').className.replace('normal','collapsed').replace('expanded','normal')" class="arrowUp"></div>
+                        <div onclick="document.getElementById('c1Container').className = document.getElementById('c1Container').className.replace('normal','expanded').replace('collapsed','normal')" class="arrowDown"></div>
+                    </div>
+                </div>
+                <div class="routeContainer">
+                    <div class="routeTableHeader">
+                        <table>
+                            <tr>
+                                <th class="colArrow"></th>
+                                <th class="colDTD">
+                                    <a class="ap">
+                                        DTD
+                                        <div>
+                                            <h2>DTD</h2>
+                                            Waypoint ID<br /> <span style="border-bottom: 1px dotted black">Underline</span> indicates Action Points at Waypoint<br />Hover for AP detail<br /><br />
+                                            User input accepted to change:<br />WIND, TAS, ETA, PPH, FUEL
+                                        </div>
+                                    </a>
+                                    <p>REMARKS</p>
+                                </th>
+                                <th class="colLL">
+                                    <p>FIX</p>
+                                    <p>LATITUDE</p>
+                                    <p>LONGITUDE</p>
+                                </th>
+                                <th class="colAlt">
+                                    <p>ALT</p>
+                                    <p>EXP ALT</p>
+                                    <a class="ap" onclick="toggleCourse()">
+                                        COURSE
+                                        <div>
+                                            <h2>Course</h2>
+                                            Course to reach waypoint from previous waypoint<br />
+                                            (Click COURSE column header to toggle True/Magnetic)
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colDist">
+                                    <a class="tooltip">
+                                        WIND
+                                        <div>
+                                            <h2>Wind</h2>
+                                            [User Input - multiple]<br />
+                                            <i>
+                                                WIND input is forwarded to <br />
+                                                next manually entered value
+                                            </i><br /><br />
+                                            Wind at waypoint<br />
+                                            Used with TAS to determine ground speed <br />
+                                            for calculating LEG TIME<br /><br />
+                                            Accepted Formats:<br />
+                                            heading/velocity or HHHVV
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG DIST
+                                        <div>
+                                            <h2>Leg Distance</h2>
+                                            Distance along route to waypoint
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        AC DIST
+                                        <div>
+                                            <h2>Route Distance</h2>
+                                            Distance travelled along route from<br /> first route waypoint to current waypoint
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colSpeed">
+                                    <a class="tooltip">
+                                        TAS
+                                        <div>
+                                            <h2>True Air Speed</h2>
+                                            [User Input - multiple]<br />
+                                            <i>TAS input is forwarded across same values</i><br /><br />
+                                            True air speed at waypoint<br />
+                                            Used with WIND to determine ground speed<br />
+                                            for calculating LEG TIME
+                                        </div>
+                                    </a>
+                                    <p>CAS[M]</p>
+                                    <a class="tooltip">
+                                        GS
+                                        <div>
+                                            <h2>Ground Speed</h2>
+                                            Speed travelling over the ground with winds factored in<br />
+                                            Calculated from TAS and WIND
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colTime">
+                                    <a class="tooltip">
+                                        ETA
+                                        <div>
+                                            <h2>Estimated Time of Arrival</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint ETA (no enroute time added)
+                                            </i><br /><br />
+                                            Time arriving at waypoint<br />
+                                            Calculated using last waypoint ETA and LEG TIME
+                                            <br /><br />
+                                            Accepted Formats:<br />
+                                            HHmm H:mm HH:mm:ss<br />
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG TIME
+                                        <div>
+                                            <h2>Leg Time</h2>
+                                            Time enroute to waypoint<br />
+                                            Calculated using waypoint TAS and WIND
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        TTG
+                                        <div>
+                                            <h2>Time To Go To Destination</h2>
+                                            Time until landing<br />
+                                            Calculated using LEG TIME
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colFuel">
+                                    <a class="tooltip">
+                                        PPH
+                                        <div>
+                                            <h2>Fuel Burn Rate (PPH)</h2>
+                                            [User Input - multiple]<br />
+                                            <i>PPH input is forwarded across same values</i><br /><br />
+                                            <i>No user input: Calculated from fuel difference and leg time</i><br /><br />
+                                            Fuel burned per hour along route leg
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG FUEL
+                                        <div>
+                                            <h2>Leg Fuel (lbs)</h2>Fuel burned enroute to next waypoint<br />
+                                            Calculated using LEG TIME, PPH, and last waypoint FUEL
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        FUEL
+                                        <div>
+                                            <h2>Fuel Remaining at Waypoint (lbs)</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint FUEL (no enroute fuel added)
+                                            </i><br /><br />
+                                            Fuel arriving at waypoint<br />
+                                            Calculated using last waypoint FUEL and LEG FUEL
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colContingency">
+                                    CONTINGENCIES<br />
+                                    C1/2/3/4
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="c1RouteTable" class="routeTableContainer" onscroll="drawContingencyLinks()">
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="c2Container" class="contingency c2 normal">
+                <div class="routeHeader">
+                    <h1 id="c2Header"></h1>
+                    <div class="containerControls" onclick="drawContingencyLinks()">
+                        <div onclick="moveMain(2)" class="moveLabel"><div class="arrowLeft"></div>MOVE TO ACTIVE</div>
+                        <div onclick="document.getElementById('c2Container').className = document.getElementById('c2Container').className.replace('normal','collapsed').replace('expanded','normal')" class="arrowUp"></div>
+                        <div onclick="document.getElementById('c2Container').className = document.getElementById('c2Container').className.replace('normal','expanded').replace('collapsed','normal')" class="arrowDown"></div>
+                    </div>
+                </div>
+
+                <div class="routeContainer">
+                    <div class="routeTableHeader">
+                        <table>
+                            <tr>
+                                <th class="colArrow"></th>
+                                <th class="colDTD">
+                                    <a class="ap">
+                                        DTD
+                                        <div>
+                                            <h2>DTD</h2>
+                                            Waypoint ID<br /> <span style="border-bottom: 1px dotted black">Underline</span> indicates Action Points at Waypoint<br />Hover for AP detail<br /><br />
+                                            User input accepted to change:<br />WIND, TAS, ETA, PPH, FUEL
+                                        </div>
+                                    </a>
+                                    <p>REMARKS</p>
+                                </th>
+                                <th class="colLL">
+                                    <p>FIX</p>
+                                    <p>LATITUDE</p>
+                                    <p>LONGITUDE</p>
+                                </th>
+                                <th class="colAlt">
+                                    <p>ALT</p>
+                                    <p>EXP ALT</p>
+                                    <a class="ap" onclick="toggleCourse()">
+                                        COURSE
+                                        <div>
+                                            <h2>Course</h2>
+                                            Course to reach waypoint from previous waypoint<br />
+                                            (Click COURSE column header to toggle True/Magnetic)
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colDist">
+                                    <a class="tooltip">
+                                        WIND
+                                        <div>
+                                            <h2>Wind</h2>
+                                            [User Input - multiple]<br />
+                                            <i>
+                                                WIND input is forwarded to <br />
+                                                next manually entered value
+                                            </i><br /><br />
+                                            Wind at waypoint<br />
+                                            Used with TAS to determine ground speed <br />
+                                            for calculating LEG TIME<br /><br />
+                                            Accepted Formats:<br />
+                                            heading/velocity or HHHVV
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG DIST
+                                        <div>
+                                            <h2>Leg Distance</h2>
+                                            Distance along route to waypoint
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        AC DIST
+                                        <div>
+                                            <h2>Route Distance</h2>
+                                            Distance travelled along route from<br /> first route waypoint to current waypoint
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colSpeed">
+                                    <a class="tooltip">
+                                        TAS
+                                        <div>
+                                            <h2>True Air Speed</h2>
+                                            [User Input - multiple]<br />
+                                            <i>TAS input is forwarded across same values</i><br /><br />
+                                            True air speed at waypoint<br />
+                                            Used with WIND to determine ground speed<br />
+                                            for calculating LEG TIME
+                                        </div>
+                                    </a>
+                                    <p>CAS[M]</p>
+                                    <a class="tooltip">
+                                        GS
+                                        <div>
+                                            <h2>Ground Speed</h2>
+                                            Speed travelling over the ground with winds factored in<br />
+                                            Calculated from TAS and WIND
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colTime">
+                                    <a class="tooltip">
+                                        ETA
+                                        <div>
+                                            <h2>Estimated Time of Arrival</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint ETA (no enroute time added)
+                                            </i><br /><br />
+                                            Time arriving at waypoint<br />
+                                            Calculated using last waypoint ETA and LEG TIME
+                                            <br /><br />
+                                            Accepted Formats:<br />
+                                            HHmm H:mm HH:mm:ss<br />
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG TIME
+                                        <div>
+                                            <h2>Leg Time</h2>
+                                            Time enroute to waypoint<br />
+                                            Calculated using waypoint TAS and WIND
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        TTG
+                                        <div>
+                                            <h2>Time To Go To Destination</h2>
+                                            Time until landing<br />
+                                            Calculated using LEG TIME
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colFuel">
+                                    <a class="tooltip">
+                                        PPH
+                                        <div>
+                                            <h2>Fuel Burn Rate (PPH)</h2>
+                                            [User Input - multiple]<br />
+                                            <i>PPH input is forwarded across same values</i><br /><br />
+                                            <i>No user input: Calculated from fuel difference and leg time</i><br /><br />
+                                            Fuel burned per hour along route leg
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG FUEL
+                                        <div>
+                                            <h2>Leg Fuel (lbs)</h2>Fuel burned enroute to next waypoint<br />
+                                            Calculated using LEG TIME, PPH, and last waypoint FUEL
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        FUEL
+                                        <div>
+                                            <h2>Fuel Remaining at Waypoint (lbs)</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint FUEL (no enroute fuel added)
+                                            </i><br /><br />
+                                            Fuel arriving at waypoint<br />
+                                            Calculated using last waypoint FUEL and LEG FUEL
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colContingency">
+                                    CONTINGENCIES<br />
+                                    C1/2/3/4
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="c2RouteTable" class="routeTableContainer" onscroll="drawContingencyLinks()">
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="c3Container" class="contingency c3 normal">
+                <div class="routeHeader">
+                    <h1 id="c3Header"></h1>
+                    <div class="containerControls" onclick="drawContingencyLinks()">
+                        <div onclick="moveMain(3)" class="moveLabel"><div class="arrowLeft"></div>MOVE TO ACTIVE</div>
+                        <div onclick="document.getElementById('c3Container').className = document.getElementById('c3Container').className.replace('normal','collapsed').replace('expanded','normal')" class="arrowUp"></div>
+                        <div onclick="document.getElementById('c3Container').className = document.getElementById('c3Container').className.replace('normal','expanded').replace('collapsed','normal')" class="arrowDown"></div>
+                    </div>
+                </div>
+                <div class="routeContainer">
+                    <div class="routeTableHeader">
+                        <table>
+                            <tr>
+                                <th class="colArrow"></th>
+                                <th class="colDTD">
+                                    <a class="ap">
+                                        DTD
+                                        <div>
+                                            <h2>DTD</h2>
+                                            Waypoint ID<br /> <span style="border-bottom: 1px dotted black">Underline</span> indicates Action Points at Waypoint<br />Hover for AP detail<br /><br />
+                                            User input accepted to change:<br />WIND, TAS, ETA, PPH, FUEL
+                                        </div>
+                                    </a>
+                                    <p>REMARKS</p>
+                                </th>
+                                <th class="colLL">
+                                    <p>FIX</p>
+                                    <p>LATITUDE</p>
+                                    <p>LONGITUDE</p>
+                                </th>
+                                <th class="colAlt">
+                                    <p>ALT</p>
+                                    <p>EXP ALT</p>
+                                    <a class="ap" onclick="toggleCourse()">
+                                        COURSE
+                                        <div>
+                                            <h2>Course</h2>
+                                            Course to reach waypoint from previous waypoint<br />
+                                            (Click COURSE column header to toggle True/Magnetic)
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colDist">
+                                    <a class="tooltip">
+                                        WIND
+                                        <div>
+                                            <h2>Wind</h2>
+                                            [User Input - multiple]<br />
+                                            <i>
+                                                WIND input is forwarded to <br />
+                                                next manually entered value
+                                            </i><br /><br />
+                                            Wind at waypoint<br />
+                                            Used with TAS to determine ground speed <br />
+                                            for calculating LEG TIME<br /><br />
+                                            Accepted Formats:<br />
+                                            heading/velocity or HHHVV
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG DIST
+                                        <div>
+                                            <h2>Leg Distance</h2>
+                                            Distance along route to waypoint
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        AC DIST
+                                        <div>
+                                            <h2>Route Distance</h2>
+                                            Distance travelled along route from<br /> first route waypoint to current waypoint
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colSpeed">
+                                    <a class="tooltip">
+                                        TAS
+                                        <div>
+                                            <h2>True Air Speed</h2>
+                                            [User Input - multiple]<br />
+                                            <i>TAS input is forwarded across same values</i><br /><br />
+                                            True air speed at waypoint<br />
+                                            Used with WIND to determine ground speed<br />
+                                            for calculating LEG TIME
+                                        </div>
+                                    </a>
+                                    <p>CAS[M]</p>
+                                    <a class="tooltip">
+                                        GS
+                                        <div>
+                                            <h2>Ground Speed</h2>
+                                            Speed travelling over the ground with winds factored in<br />
+                                            Calculated from TAS and WIND
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colTime">
+                                    <a class="tooltip">
+                                        ETA
+                                        <div>
+                                            <h2>Estimated Time of Arrival</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint ETA (no enroute time added)
+                                            </i><br /><br />
+                                            Time arriving at waypoint<br />
+                                            Calculated using last waypoint ETA and LEG TIME
+                                            <br /><br />
+                                            Accepted Formats:<br />
+                                            HHmm H:mm HH:mm:ss<br />
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG TIME
+                                        <div>
+                                            <h2>Leg Time</h2>
+                                            Time enroute to waypoint<br />
+                                            Calculated using waypoint TAS and WIND
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        TTG
+                                        <div>
+                                            <h2>Time To Go To Destination</h2>
+                                            Time until landing<br />
+                                            Calculated using LEG TIME
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colFuel">
+                                    <a class="tooltip">
+                                        PPH
+                                        <div>
+                                            <h2>Fuel Burn Rate (PPH)</h2>
+                                            [User Input - multiple]<br />
+                                            <i>PPH input is forwarded across same values</i><br /><br />
+                                            <i>No user input: Calculated from fuel difference and leg time</i><br /><br />
+                                            Fuel burned per hour along route leg
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG FUEL
+                                        <div>
+                                            <h2>Leg Fuel (lbs)</h2>Fuel burned enroute to next waypoint<br />
+                                            Calculated using LEG TIME, PPH, and last waypoint FUEL
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        FUEL
+                                        <div>
+                                            <h2>Fuel Remaining at Waypoint (lbs)</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint FUEL (no enroute fuel added)
+                                            </i><br /><br />
+                                            Fuel arriving at waypoint<br />
+                                            Calculated using last waypoint FUEL and LEG FUEL
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colContingency">
+                                    CONTINGENCIES<br />
+                                    C1/2/3/4
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="c3RouteTable" class="routeTableContainer" onscroll="drawContingencyLinks()">
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="c4Container" class="contingency c4 normal">
+                <div class="routeHeader">
+                    <h1 id="c4Header"></h1>
+                    <div class="containerControls" onclick="drawContingencyLinks()">
+                        <div onclick="moveMain(4)" class="moveLabel"><div class="arrowLeft"></div>MOVE TO ACTIVE</div>
+                        <div onclick="document.getElementById('c4Container').className = document.getElementById('c4Container').className.replace('normal','collapsed').replace('expanded','normal')" class="arrowUp"></div>
+                        <div onclick="document.getElementById('c4Container').className = document.getElementById('c4Container').className.replace('normal','expanded').replace('collapsed','normal')" class="arrowDown"></div>
+                    </div>
+                </div>
+                <div class="routeContainer">
+                    <div class="routeTableHeader">
+                        <table>
+                            <tr>
+                                <th class="colArrow"></th>
+                                <th class="colDTD">
+                                    <a class="ap">
+                                        DTD
+                                        <div>
+                                            <h2>DTD</h2>
+                                            Waypoint ID<br /> <span style="border-bottom: 1px dotted black">Underline</span> indicates Action Points at Waypoint<br />Hover for AP detail<br /><br />
+                                            User input accepted to change:<br />WIND, TAS, ETA, PPH, FUEL
+                                        </div>
+                                    </a>
+                                    <p>REMARKS</p>
+                                </th>
+                                <th class="colLL">
+                                    <p>FIX</p>
+                                    <p>LATITUDE</p>
+                                    <p>LONGITUDE</p>
+                                </th>
+                                <th class="colAlt">
+                                    <p>ALT</p>
+                                    <p>EXP ALT</p>
+                                    <a class="ap" onclick="toggleCourse()">
+                                        COURSE
+                                        <div>
+                                            <h2>Course</h2>
+                                            Course to reach waypoint from previous waypoint<br />
+                                            (Click COURSE column header to toggle True/Magnetic)
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colDist">
+                                    <a class="tooltip">
+                                        WIND
+                                        <div>
+                                            <h2>Wind</h2>
+                                            [User Input - multiple]<br />
+                                            <i>
+                                                WIND input is forwarded to <br />
+                                                next manually entered value
+                                            </i><br /><br />
+                                            Wind at waypoint<br />
+                                            Used with TAS to determine ground speed <br />
+                                            for calculating LEG TIME<br /><br />
+                                            Accepted Formats:<br />
+                                            heading/velocity or HHHVV
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG DIST
+                                        <div>
+                                            <h2>Leg Distance</h2>
+                                            Distance along route to waypoint
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        AC DIST
+                                        <div>
+                                            <h2>Route Distance</h2>
+                                            Distance travelled along route from<br /> first route waypoint to current waypoint
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colSpeed">
+                                    <a class="tooltip">
+                                        TAS
+                                        <div>
+                                            <h2>True Air Speed</h2>
+                                            [User Input - multiple]<br />
+                                            <i>TAS input is forwarded across same values</i><br /><br />
+                                            True air speed at waypoint<br />
+                                            Used with WIND to determine ground speed<br />
+                                            for calculating LEG TIME
+                                        </div>
+                                    </a>
+                                    <p>CAS[M]</p>
+                                    <a class="tooltip">
+                                        GS
+                                        <div>
+                                            <h2>Ground Speed</h2>
+                                            Speed travelling over the ground with winds factored in<br />
+                                            Calculated from TAS and WIND
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colTime">
+                                    <a class="tooltip">
+                                        ETA
+                                        <div>
+                                            <h2>Estimated Time of Arrival</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint ETA (no enroute time added)
+                                            </i><br /><br />
+                                            Time arriving at waypoint<br />
+                                            Calculated using last waypoint ETA and LEG TIME
+                                            <br /><br />
+                                            Accepted Formats:<br />
+                                            HHmm H:mm HH:mm:ss<br />
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG TIME
+                                        <div>
+                                            <h2>Leg Time</h2>
+                                            Time enroute to waypoint<br />
+                                            Calculated using waypoint TAS and WIND
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        TTG
+                                        <div>
+                                            <h2>Time To Go To Destination</h2>
+                                            Time until landing<br />
+                                            Calculated using LEG TIME
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colFuel">
+                                    <a class="tooltip">
+                                        PPH
+                                        <div>
+                                            <h2>Fuel Burn Rate (PPH)</h2>
+                                            [User Input - multiple]<br />
+                                            <i>PPH input is forwarded across same values</i><br /><br />
+                                            <i>No user input: Calculated from fuel difference and leg time</i><br /><br />
+                                            Fuel burned per hour along route leg
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        LEG FUEL
+                                        <div>
+                                            <h2>Leg Fuel (lbs)</h2>Fuel burned enroute to next waypoint<br />
+                                            Calculated using LEG TIME, PPH, and last waypoint FUEL
+                                        </div>
+                                    </a><br />
+                                    <a class="tooltip">
+                                        FUEL
+                                        <div>
+                                            <h2>Fuel Remaining at Waypoint (lbs)</h2>
+                                            [User Input - one entry per route]<br />
+                                            <i>
+                                                No user input: route defaults used<br />
+                                                Contingencies without user input:<br />
+                                                Tied to linked waypoint FUEL (no enroute fuel added)
+                                            </i><br /><br />
+                                            Fuel arriving at waypoint<br />
+                                            Calculated using last waypoint FUEL and LEG FUEL
+                                        </div>
+                                    </a>
+                                </th>
+                                <th class="colContingency">
+                                    CONTINGENCIES<br />
+                                    C1/2/3/4
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="c4RouteTable" class="routeTableContainer" onscroll="drawContingencyLinks()">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="queryAddresses.js"></script>
+    <script src="spQuery.js"></script>
+    <script src="binderScript.js"></script>
+    <script src="routes.js"></script>
+</body>
+</html>

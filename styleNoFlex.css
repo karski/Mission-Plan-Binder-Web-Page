@@ -1,0 +1,887 @@
+/*for testing, show all div/span outlines*/
+/*div {
+    border: 1px solid red;
+}
+
+span {
+    border: 1px solid blue;
+}
+
+canvas {
+    border: 1px solid purple;
+}
+*/
+body {
+    font-size: 10.0pt;
+    font-family: "Calibri","sans-serif";
+    background-color: gray;
+}
+
+Table {
+    width: 100%;
+    border-width: 1px;
+    border-spacing: 0px;
+    border-style: solid;
+    border-color: black;
+    border-collapse: collapse;
+    text-align: center;
+    text-anchor: middle;
+}
+
+th {
+    border-width: 1px;
+    padding: 1px;
+    border-style: solid;
+    border-color: black;
+    font-weight: bold;
+    font-size: .8em;
+    /*height: 50px;*/
+}
+
+    th div {
+        font-weight: normal;
+    }
+
+td {
+    border-width: 1px;
+    padding: 1px;
+    border-style: solid;
+    border-color: black;
+    /*border-left:none;*/
+    /*border-right:none;*/
+    /*max-width:150px;
+    white-space:nowrap;*/
+}
+
+    td p.userChanged {
+        font-weight: bold;
+    }
+
+p {
+    margin: 0px 0px 0px 0px;
+    width: 100%;
+}
+
+    p[class^='change'] {
+        cursor: text;
+    }
+
+h3 {
+    margin: .2em 0 .2em 0;
+}
+
+h2 {
+    margin: 0;
+    padding: 4px 0 4px 0;
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+    top: 0;
+    left: 0;
+    display: inline-block;
+}
+
+ul {
+    list-style: none;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 2px solid;
+    border-radius: 5px;
+}
+
+li {
+    padding: 2px 0 0 0;
+    border: 0px !important;
+}
+
+/*route options formatting*/
+.routeOptionsContainer {
+    position: relative;
+    display: inline-block;
+    text-anchor: middle;
+    margin: 0 10px 0 20px;
+}
+
+/*container controls*/
+.containerControls {
+    position: relative;
+    display: inline-block;
+    float: right;
+    clear: left;
+}
+
+.arrowUp {
+    vertical-align: middle;
+    position: relative;
+    content: "";
+    border-top: 0;
+    border-bottom: 10px solid;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0px;
+    width: 0px;
+    display: inline-block;
+    margin: 10px 5px 10px 5px;
+}
+
+    .arrowUp:hover {
+        border-bottom-color: slategrey;
+        cursor: pointer;
+    }
+
+.arrowDown {
+    vertical-align: middle;
+    position: relative;
+    content: "";
+    border-top: 10px solid;
+    border-bottom: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0px;
+    width: 0px;
+    display: inline-block;
+    margin: 10px 5px 10px 5px;
+}
+
+    .arrowDown:hover {
+        border-top-color: slategrey;
+        cursor: pointer;
+    }
+
+.arrowLeft {
+    vertical-align: middle;
+    position: relative;
+    content: "";
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid;
+    border-left: 0;
+    height: 0px;
+    width: 0px;
+    display: inline-block;
+    margin: 5px;
+}
+
+.moveLabel {
+    vertical-align: middle;
+    position: relative;
+    display: inline-block;
+    margin: 0 10px 0 0;
+}
+
+    .moveLabel:hover {
+        color: slategrey;
+        cursor: pointer;
+    }
+
+        .moveLabel:hover .arrowLeft {
+            border-right-color: slategrey;
+        }
+
+/*route table styles*/
+/*Column defintions so that sizes are reliable and can be lined up with header*/
+.colArrow {
+    width: 12px;
+    max-width: 12px;
+    min-width: 12px;
+    border-right: none;
+}
+
+.colDTD {
+    width: 20%;
+    min-width: 100px;
+    border-left: none;
+}
+
+    .colDTD a, .colDTD p:first-child {
+        font-weight: bold;
+    }
+
+    .colDTD div {
+        font-weight: normal;
+    }
+
+.colLL {
+    width: 15%;
+    min-width: 100px;
+}
+
+.colALt {
+    width: 7%;
+    min-width: 50px;
+}
+
+.colDist {
+    width: 10%;
+    min-width: 70px;
+}
+
+.colSpeed {
+    width: 9%;
+    min-width: 55px;
+}
+
+.colTime {
+    width: 10%;
+    min-width: 75px;
+}
+
+.colFuel {
+    width: 7%;
+    min-width: 50px;
+}
+
+.colContingency {
+    width: 20%;
+    min-width: 125px;
+}
+
+.tableRow:target {
+    animation: highlightTarget 1s;
+}
+
+@keyframes highlightTarget {
+    0% {
+    }
+
+    20% {
+        text-shadow: 2px 3px 5px rgba(0,0,0,0.5);
+        font-weight: bold;
+        box-shadow: 2px 5px 10px 10px rgba(0,0,0,0.2);
+        border-width: thick;
+    }
+
+    100% {
+    }
+}
+
+.alternateRows {
+    padding: 2px 0 2px 0;
+}
+
+    .alternateRows li:nth-child(even) {
+        background-color: lightgray;
+        padding: 2px 0 2px 10px;
+    }
+
+    .alternateRows li:nth-child(odd) {
+        background-color: white;
+        padding: 2px 0 2px 10px;
+    }
+
+li a {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/*drawing space for links*/
+#linkDrawSpace {
+    position: fixed;
+    top: 50px;
+    /*bottom: 0px;*/
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: -100;
+    overflow: hidden;
+}
+
+/*Tootlip style and popup*/
+a.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    color: black;
+    text-decoration: none;
+}
+
+    a.tooltip div {
+        visibility: hidden;
+        min-width: 10em;
+        white-space: nowrap;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #000;
+        text-align: left;
+        padding: 5px 10px 10px 10px;
+        border-radius: 6px;
+        /* Position the tooltip text */
+        position: absolute;
+        z-index: 1;
+        top: -25px;
+        right: calc(100% + 10px);
+        /*left: 10%;*/
+        /* Fade in tooltip */
+        opacity: 0;
+        transition: opacity 0.25s;
+        box-shadow: 2px 5px 10px 0 rgba(0,0,0,0.2);
+    }
+
+        a.tooltip div::after {
+            content: "";
+            position: absolute;
+            top: 25px;
+            left: 100%;
+            margin-top: -5px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent transparent #000;
+        }
+
+    a.tooltip:hover div {
+        visibility: visible;
+        opacity: 1;
+    }
+
+
+/*Action Point style and popup*/
+a.ap {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    color: black;
+    text-decoration: none;
+}
+
+    a.ap div {
+        visibility: hidden;
+        min-width: 10em;
+        white-space: nowrap;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #000;
+        text-align: left;
+        padding: 5px 10px 10px 10px;
+        border-radius: 6px;
+        /* Position the tooltip text */
+        position: absolute;
+        z-index: 1;
+        top: -10px;
+        left: calc(100% + 10px);
+        /*left: 10%;*/
+        /* Fade in tooltip */
+        opacity: 0;
+        transition: opacity 0.25s;
+        box-shadow: 2px 5px 10px 0 rgba(0,0,0,0.2);
+    }
+
+        a.ap div::after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            right: 100%;
+            margin-top: -5px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent #000 transparent transparent;
+        }
+
+    a.ap:hover div {
+        visibility: visible;
+        opacity: 1;
+    }
+
+a:hover {
+    cursor: pointer; /*force non-linked a tags to still show pointer*/
+}
+
+/*Define layout sizes for the route and page layout containers*/
+.pageHead {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    display: inline-block;
+    border-bottom: 3px solid black;
+    /*padding: 10px 20px 0 20px;*/
+    background-color: white;
+    cursor: default;
+}
+
+#pageMsnHeader {
+    position: relative;
+    display: inline-block;
+    top: 7px;
+    left: 20px;
+    width: 140px;
+    margin: 0 10px 0 10px;
+    text-align: center;
+}
+
+.pageLinks {
+    display: inline-block;
+    margin-right: 20px;
+    float: right;
+}
+
+.routeList {
+    position: fixed;
+    left: 0;
+    top: 53px; /*position below page head + border size*/
+    bottom: 0;
+    width: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: white;
+}
+
+    .routeList > li {
+        cursor: default;
+    }
+
+    .routeList .tableRow {
+        cursor: pointer;
+    }
+
+.pageContainer {
+    position: absolute;
+    top: 53px;
+    left: 204px; /*position to right of route list*/
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    cursor: default;
+}
+
+
+
+.main {
+    width: 750px;
+    min-width: 700px;
+    height: calc(100% - 20px);
+    /*min-height: 500px;*/
+    top: 10px;
+    left: 10px;
+    padding: 0;
+    position: relative;
+    border-radius: 5px;
+    display: block;
+    overflow: hidden;
+    resize: vertical;
+}
+
+.contingencyContainer {
+    width: 750px;
+    min-width: 700px;
+    top: 10px;
+    left: 800px; /*align to right of link container + route list*/
+    padding: 0;
+    position: absolute;
+}
+
+.routeHeader {
+    padding: 0 10px 10px 20px;
+    height: 20px;
+    width: calc(100% - 30px);
+    border-radius: 2px;
+}
+
+.routeContainer {
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    right: 5px;
+    bottom: 10px;
+    /*overflow:visible;*/
+    /*padding: 10px 5px 10px 10px;*/
+}
+
+.routeTableHeader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 17px;
+    height: 50px !important;
+}
+
+.routeTableContainer {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.contingency {
+    width: 750px;
+    min-width: 700px;
+    padding: 0;
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    resize: vertical;
+}
+
+.verticalSpacer {
+    position: relative;
+    height: 10px;
+}
+
+.normal {
+    /*height: 30%;*/
+    min-height: 500px !important;
+}
+
+.expanded {
+    /*height: 80%;*/
+    min-height: 800px !important;
+}
+
+.collapsed {
+    height: 32px !important;
+    min-height: 32px !important;
+    overflow: no-display;
+    resize: none;
+}
+
+    .collapsed .routeTableHeader {
+        visibility: hidden;
+    }
+
+/*Define the way containers will reposition based on page size*/
+
+/*Display stacked view for skinny screen*/
+@media only screen and (max-width: 1400px) {
+
+    .main {
+        height: 50%;
+        /*min-height: 500px;*/
+    }
+
+    .contingencyContainer {
+        display: inline-block;
+        position: relative;
+        float: left;
+        top: 20px;
+        left: 10px;
+    }
+}
+
+/*move menu list to top for very skinny screen*/
+@media only screen and (max-width: 900px) {
+
+
+    .routeList {
+        position: relative;
+        top: 5px;
+        display: inline-block;
+        float: left;
+        width: 200px;
+        z-index: 100;
+        overflow: visible;
+    }
+
+        .routeList li > ul {
+            /*display: none;*/
+            position: relative;
+            top: 100%;
+            height: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s;
+            box-shadow: 2px 5px 10px 0 rgba(0,0,0,0.2);
+        }
+
+        .routeList li:hover > ul {
+            visibility: visible;
+            display: block;
+            opacity: 1;
+            height: auto;
+            transition: opacity 0.25s;
+        }
+
+            .routeList li:hover > ul li {
+                display: block;
+            }
+
+        .routeList ul li {
+            display: none;
+            position: relative;
+            z-index: 100;
+        }
+
+        .routeList ul ul {
+            /*display: none;*/
+            position: absolute;
+            left: 100%;
+            top: 0;
+            height: 0;
+            width: 200px;
+            z-index: 100;
+            opacity: 0;
+            /*visibility: hidden;*/
+        }
+
+        .routeList ul li:hover > ul {
+            visibility: visible;
+            display: block;
+            height: auto;
+            opacity: 1;
+            transition: opacity 0.25s;
+        }
+
+    .pageContainer {
+        left: 0;
+    }
+}
+
+/*styles for disabled routes*/
+.inactive {
+    /*used for unavailable contingency conditions*/
+    height: 30px;
+    overflow: no-display;
+    border: 2px solid darkgray !important;
+    background-color: lightgray;
+}
+
+    .inactive div {
+        /*used for unavailable contingency conditions*/
+        background-color: lightgray !important;
+    }
+
+    .inactive .routeTableHeader {
+        visibility: hidden;
+    }
+
+    .inactive .containerControls {
+        visibility: hidden;
+    }
+
+/*Colors for contingency links*/
+.c1Link {
+    color: darkgoldenrod;
+}
+
+.c2Link {
+    color: darkorange;
+}
+
+.c3Link {
+    color: red;
+}
+
+.c4Link {
+    color: rebeccapurple;
+}
+
+/*Colors for route containers*/
+.c0 {
+    border: 2px solid blue;
+    background-color: white;
+}
+
+    .c0 .routeHeader, li .c0 {
+        background-color: lightskyblue;
+    }
+
+        .c0 .routeHeader:before {
+            content: "C0 - Approach:  ";
+            font-size: 2em;
+            font-weight: bold;
+            display: inline;
+        }
+
+    .c0 .tableRow:hover {
+        border-top: 2px dotted skyblue;
+        border-bottom: 2px dotted skyblue;
+        background-color: lightcyan;
+        border-spacing: -2px;
+    }
+
+    .c0 .currentWpt {
+        border-top: 2px solid blue;
+        border-bottom: 2px solid blue;
+        background-color: lightskyblue;
+        border-spacing: -2px;
+    }
+
+        .c0 .currentWpt td:first-child:before {
+            content: "";
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid blue;
+            border-right: 0;
+            height: 0px;
+            width: 0px;
+            display: inline-block;
+            float: left;
+        }
+
+
+
+
+.c1 {
+    border: 2px solid gold;
+    background-color: white;
+}
+
+    .c1 .routeHeader, li .c1 {
+        background-color: lightgoldenrodyellow;
+    }
+
+        .c1 .routeHeader:before {
+            content: "C1 - Lost Link:  ";
+            font-size: 2em;
+            font-weight: bold;
+            display: inline;
+        }
+
+    .c1 .tableRow:hover {
+        border-top: 2px dotted gold;
+        border-bottom: 2px dotted gold;
+        background-color: lightyellow;
+        border-spacing: -2px;
+    }
+
+    .c1 .currentWpt {
+        border-top: 2px solid gold;
+        border-bottom: 2px solid gold;
+        background-color: lightgoldenrodyellow;
+        border-spacing: -2px;
+    }
+
+        .c1 .currentWpt td:first-child:before {
+            content: "";
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid gold;
+            border-right: 0;
+            height: 0px;
+            width: 0px;
+            display: inline-block;
+            float: left;
+        }
+
+.c2 {
+    border: 2px solid darkorange;
+    background-color: white;
+}
+
+    .c2 .routeHeader, li .c2 {
+        background-color: lightsalmon;
+    }
+
+        .c2 .routeHeader:before {
+            content: "C2 - RTB:  ";
+            font-size: 2em;
+            font-weight: bold;
+            display: inline;
+        }
+
+    .c2 .tableRow:hover {
+        border-top: 2px dotted darkorange;
+        border-bottom: 2px dotted darkorange;
+        background-color: moccasin;
+        border-spacing: -2px;
+    }
+
+    .c2 .currentWpt {
+        border-top: 2px solid darkorange;
+        border-bottom: 2px solid darkorange;
+        background-color: navajowhite;
+        border-spacing: -2px;
+    }
+
+        .c2 .currentWpt td:first-child:before {
+            content: "";
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid darkorange;
+            border-right: 0;
+            height: 0px;
+            width: 0px;
+            display: inline-block;
+            float: left;
+        }
+
+.c3 {
+    border: 2px solid red;
+    background-color: white;
+}
+
+    .c3 .routeHeader, li .c3 {
+        background-color: lightpink;
+    }
+
+        .c3 .routeHeader:before {
+            content: "C3 - Emergency:  ";
+            font-size: 2em;
+            font-weight: bold;
+            display: inline;
+        }
+
+    .c3 .tableRow:hover {
+        border-top: 2px dotted deeppink;
+        border-bottom: 2px dotted deeppink;
+        background-color: mistyrose;
+        border-spacing: -2px;
+    }
+
+    .c3 .currentWpt {
+        border-top: 2px solid red;
+        border-bottom: 2px solid red;
+        background-color: lightpink;
+        border-spacing: -2px;
+    }
+
+        .c3 .currentWpt td:first-child:before {
+            content: "";
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid darkred;
+            border-right: 0;
+            height: 0px;
+            width: 0px;
+            display: inline-block;
+            float: left;
+        }
+
+.c4 {
+    border: 2px solid rebeccapurple;
+    background-color: white;
+}
+
+    .c4 .routeHeader, li .c4 {
+        background-color: mediumpurple;
+    }
+
+        .c4 .routeHeader:before {
+            content: "C4 - Go-Around:  ";
+            font-size: 2em;
+            font-weight: bold;
+            display: inline;
+        }
+
+    .c4 .tableRow:hover {
+        border-top: 2px dotted violet;
+        border-bottom: 2px dotted violet;
+        background-color: plum;
+        border-spacing: -2px;
+    }
+
+    .c4 .currentWpt {
+        border-top: 2px solid rebeccapurple;
+        border-bottom: 2px solid rebeccapurple;
+        background-color: mediumorchid;
+        border-spacing: -2px;
+    }
+
+        .c4 .currentWpt td:first-child:before {
+            content: "";
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid darkmagenta;
+            border-right: 0;
+            height: 0px;
+            width: 0px;
+            display: inline-block;
+            float: left;
+        }

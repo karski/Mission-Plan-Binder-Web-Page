@@ -1,0 +1,216 @@
+
+body {
+    font-size: 10.0pt;
+    font-family: "Calibri","sans-serif";
+}
+
+Table {
+    /*width: 100%;*/
+    border-width: 1px;
+    border-spacing: 0px;
+    border-style: solid;
+    border-color: black;
+    border-collapse: collapse;
+    text-align: center;
+    text-anchor: middle;
+}
+
+th {
+    border-width: 1px;
+    padding: 1px;
+    border-style: solid;
+    border-color: black;
+    font-weight: bold;
+}
+
+td {
+    border-width: 1px;
+    padding: 1px;
+    border-style: solid;
+    border-color: black;
+}
+
+    td p.userChanged {
+        font-weight: bold;
+    }
+
+p {
+    margin: 0px 0px 0px 0px;
+    width: 100%;
+}
+
+
+h3 {
+    margin: .2em 0 .2em 0;
+}
+
+h1 {
+    margin: 0;
+}
+
+/*Action Point style and popup*/
+a.ap {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    text-decoration: none;
+}
+
+    a.ap div {
+        visibility: hidden;
+        min-width: 10em;
+        white-space: nowrap;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #000;
+        text-align: left;
+        padding: 5px 10px 10px 10px;
+        border-radius: 6px;
+        /* Position the tooltip text */
+        position: absolute;
+        z-index: 1;
+        top: -25px;
+        left: 160%;
+        /*left: 10%;*/
+        /* Fade in tooltip */
+        opacity: 0;
+        transition: opacity 0.25s;
+        box-shadow: 2px 5px 10px 0 rgba(0,0,0,0.2);
+    }
+
+        a.ap div::after {
+            content: "";
+            position: absolute;
+            top: 30px;
+            right: 100%;
+            margin-top: -5px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent #000 transparent transparent;
+        }
+
+    a.ap:hover div {
+        visibility: visible;
+        opacity: 1;
+    }
+
+
+/*Define layout sizes for the route containers*/
+.main {
+    width: 30%;
+    min-width: 500px;
+    min-height: 100px;
+    /*height: calc(100% - 20px);*/
+    max-height: 90%; /*! May have to be updated when header is added*/
+    margin: 10px 0 10px 10px;
+    padding: 0;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+.routeContainer {
+    position:absolute;
+    top:60px;
+    left:10px;
+    right:5px;
+    bottom:10px;
+    flex:auto;
+    /*padding: 10px 5px 10px 10px;*/
+}
+
+.routeTable {
+    height:100%; /*wrap*/
+    max-height: 100%;
+      /*height: 100%;*/
+    margin: 0 5px 10px 10px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    flex-shrink:1;
+}
+
+.routeHeader {
+    margin-right: 17px;
+}
+
+.contingency {
+}
+
+.collapsed {
+    height: 20px;
+    overflow: no-content;
+}
+/*Define the contngency containers that will reposition based on page size*/
+.sideContingency {
+}
+
+.stackedcContingency {
+}
+
+/*Colors for route containers*/
+.c0 {
+    border: 2px solid blue;
+}
+
+.c0Header {
+    /*position:absolute;
+    top:0;
+    left:0;*/
+    padding: 10px 10px 10px 20px;
+    height:30px;
+    width:100%;
+    background-color: lightskyblue;
+}
+
+.c1 {
+    border: 2px solid blue;
+}
+
+.c1Header {
+    background-color: lightskyblue;
+}
+
+.c2 {
+    border: 2px solid blue;
+}
+
+.c2Header {
+    background-color: lightskyblue;
+}
+
+.c3 {
+    border: 2px solid blue;
+}
+
+.c3Header {
+    background-color: lightskyblue;
+}
+
+.c4 {
+    border: 2px solid blue;
+}
+
+.c4Header {
+    background-color: lightskyblue;
+}
+
+/*colors for row styles*/
+/*Current is the active point with input controlling timing etc*/
+/*Queue is linked to the active point through contingency logic*/
+/*Row:hover action makes the display responsive to user inputs - this will need to be added each row*/
+.c0Current {
+    border-top: 2px solid blue;
+    border-bottom: 2px solid blue;
+    background-color: lightskyblue;
+}
+
+.c0Row:hover {
+    border-top: 2px dotted skyblue;
+    border-bottom: 2px dotted skyblue;
+    background-color: lightcyan;
+    border-spacing: -2px;
+}
